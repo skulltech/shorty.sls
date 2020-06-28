@@ -6,7 +6,7 @@ plugins:
   - serverless-dynamodb-local
 
 custom:
-  tableName: 'users-table-${self:provider.stage}'
+  tableName: 'urls-table-${self:provider.stage}'
   wsgi:
     app: app.app
     packRequirements: false
@@ -33,9 +33,11 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
+        Fn::GetAtt:
+          - UrlsDynamoDBTable
+          - Arn
   environment:
-    USERS_TABLE: ${self:custom.tableName}
+    URLS_TABLE: ${self:custom.tableName}
 
 functions:
   app:
@@ -46,14 +48,14 @@ functions:
 
 resources:
   Resources:
-    UsersDynamoDBTable:
+    UrlsDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: urlId
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: urlId
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
