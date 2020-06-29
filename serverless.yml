@@ -1,4 +1,6 @@
 service: shorty
+app: shorty-app
+org: skghosh
 
 plugins:
   - serverless-python-requirements
@@ -61,3 +63,11 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.tableName}
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+    - .idea/**
+    - __pycache__/**
+    - .dynamodb/**
