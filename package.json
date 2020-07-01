@@ -2,7 +2,9 @@
   "name": "shorty",
   "description": "",
   "version": "0.1.0",
-  "dependencies": {},
+  "dependencies": {
+    "serverless-finch": "^2.6.0"
+  },
   "devDependencies": {
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-python-requirements": "^5.1.0",

@@ -6,7 +6,7 @@ import string
 from decimal import Decimal
 
 import boto3
-from flask import Flask, jsonify, request, redirect, abort
+from flask import Flask, jsonify, request, redirect, abort, render_template
 
 app = Flask(__name__)
 URLS_TABLE = os.environ['URLS_TABLE']
@@ -33,14 +33,19 @@ class DecimalEncoder(json.JSONEncoder):
 app.json_encoder = DecimalEncoder
 
 
-@app.route('/<string:url_id>')
-def shorty(url_id):
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+
+@app.route('/<string:slug>')
+def shorty(slug):
     inspect = False
-    if url_id[-1] == '+':
-        url_id = url_id[:-1]
+    if slug[-1] == '+':
+        slug = slug[:-1]
         inspect = True
 
-    response = table.get_item(Key={'urlId': url_id})
+    response = table.get_item(Key={'slug': slug})
     item = response.get('Item')
     if not item:
         abort(404)
@@ -50,16 +55,16 @@ def shorty(url_id):
         return long_url
 
     response = table.update_item(
-        Key={'urlId': url_id},
+        Key={'slug': slug},
         UpdateExpression='ADD visits :inc',
         ExpressionAttributeValues={':inc': 1}
     )
     return redirect(long_url, code=301)
 
 
-@app.route('/api/urls/<string:url_id>')
-def get_url(url_id):
-    response = table.get_item(Key={'urlId': url_id})
+@app.route('/api/urls/<string:slug>')
+def get_url(slug):
+    response = table.get_item(Key={'slug': slug})
     item = response.get('Item')
     if not item:
         return jsonify({'error': 'URL does not exist'}), 404
@@ -69,28 +74,28 @@ def get_url(url_id):
 
 @app.route('/api/urls', methods=['POST'])
 def create_url():
-    url_id = request.json.get('urlId')
+    slug = request.json.get('slug')
     long_url = request.json.get('longUrl')
     if not long_url:
         return jsonify({'error': 'Please provide longUrl'}), 400
-    if not url_id:
-        url_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    elif not re.match('^[a-z0-9._-]{1,16}$', url_id):
-        return jsonify({'error': 'Invalid urlId, must contain only lowercase letters, hyphen, dot and underscore'}), 400
+    if not slug:
+        slug = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    elif not re.match('^[a-z0-9._-]{1,16}$', slug):
+        return jsonify({'error': 'Invalid slug, must contain only lowercase letters, hyphen, dot and underscore'}), 400
 
     try:
         response = table.put_item(
-            ConditionExpression='attribute_not_exists(urlId)',
+            ConditionExpression='attribute_not_exists(slug)',
             Item={
-                'urlId': url_id,
+                'slug': slug,
                 'longUrl': long_url,
                 'visits': 0
             })
     except db.meta.client.exceptions.ConditionalCheckFailedException as e:
-        return jsonify({'error': 'urlId already exists'}), 400
+        return jsonify({'error': 'slug already exists'}), 400
 
     return jsonify({
-        'urlId': url_id,
+        'slug': slug,
         'longUrl': long_url,
         'visits': 0
     })
