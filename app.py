@@ -6,7 +6,7 @@ import string
 from decimal import Decimal
 
 import boto3
-from flask import Flask, jsonify, request, redirect, abort, render_template
+from flask import Flask, jsonify, request, redirect, abort
 
 app = Flask(__name__)
 URLS_TABLE = os.environ['URLS_TABLE']
@@ -31,11 +31,6 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 app.json_encoder = DecimalEncoder
-
-
-@app.route('/')
-def home():
-    return render_template('home.html')
 
 
 @app.route('/<string:slug>')
