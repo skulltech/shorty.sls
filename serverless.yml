@@ -6,9 +6,10 @@ plugins:
   - serverless-python-requirements
   - serverless-wsgi
   - serverless-dynamodb-local
+  - serverless-finch
 
 custom:
-  tableName: 'urls-table-${self:provider.stage}'
+  tableName: urls-table-${self:provider.stage}
   wsgi:
     app: app.app
     packRequirements: false
@@ -19,6 +20,9 @@ custom:
       migrate: true
     stages:
       - dev
+  client:
+    bucketName: shorty-serverless
+    distributionFolder: dist
 
 provider:
   name: aws
@@ -46,7 +50,7 @@ functions:
     handler: wsgi_handler.handler
     events:
       - http: ANY /
-      - http: 'ANY {proxy+}'
+      - http: ANY {proxy+}
 
 resources:
   Resources:
@@ -63,6 +67,75 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.tableName}
+
+    CloudfrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Origins:
+            - DomainName: ${self:custom.client.bucketName}.s3-website.${self:provider.region}.amazonaws.com
+              Id: StaticS3Origin
+              CustomOriginConfig:
+                OriginProtocolPolicy: http-only
+            - DomainName:
+                Fn::Join:
+                  - ''
+                  - - Ref: ApiGatewayRestApi
+                    - '.execute-api.'
+                    - Ref: AWS::Region
+                    - '.amazonaws.com'
+              Id: APIOrigin
+              CustomOriginConfig:
+                OriginProtocolPolicy: https-only
+              OriginPath: /dev
+          Enabled: true
+          DefaultCacheBehavior:
+            TargetOriginId: StaticS3Origin
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+          CacheBehaviors:
+            - PathPattern: /swagger*
+              TargetOriginId: StaticS3Origin
+              ForwardedValues:
+                QueryString: false
+                Cookies:
+                  Forward: none
+              ViewerProtocolPolicy: redirect-to-https
+            - PathPattern: /static*
+              TargetOriginId: StaticS3Origin
+              ForwardedValues:
+                QueryString: false
+                Cookies:
+                  Forward: none
+              ViewerProtocolPolicy: redirect-to-https
+            - PathPattern: /api/?*
+              TargetOriginId: APIOrigin
+              ForwardedValues:
+                QueryString: true
+                Headers: [Accept, Referer, Authorization, Content-Type]
+                Cookies:
+                  Forward: none
+              ViewerProtocolPolicy: redirect-to-https
+              AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+              MinTTL: '0'
+              DefaultTTL: '0'
+            - PathPattern: /?*
+              TargetOriginId: APIOrigin
+              ForwardedValues:
+                QueryString: true
+                Headers: [Accept, Referer, Authorization, Content-Type]
+                Cookies:
+                  Forward: none
+              ViewerProtocolPolicy: redirect-to-https
+              AllowedMethods: [DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT]
+              MinTTL: '0'
+              DefaultTTL: '0'
+          ViewerCertificate:
+            CloudFrontDefaultCertificate: true
+          PriceClass: PriceClass_100
 
 package:
   exclude:
