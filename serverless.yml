@@ -72,6 +72,8 @@ resources:
       Type: AWS::CloudFront::Distribution
       Properties:
         DistributionConfig:
+          Aliases:
+            - shorty.skghosh.me
           Origins:
             - DomainName: ${self:custom.client.bucketName}.s3-website.${self:provider.region}.amazonaws.com
               Id: StaticS3Origin
@@ -134,7 +136,9 @@ resources:
               MinTTL: '0'
               DefaultTTL: '0'
           ViewerCertificate:
-            CloudFrontDefaultCertificate: true
+            AcmCertificateArn: arn:aws:acm:us-east-1:680499645329:certificate/6fbcfddc-3351-47fc-9ebe-f3d88abc444f
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2018
           PriceClass: PriceClass_100
 
 package:
