@@ -23,6 +23,7 @@ custom:
   client:
     bucketName: shorty-serverless
     distributionFolder: dist
+  acmArn: arn:aws:acm:us-east-1:680499645329:certificate/6fbcfddc-3351-47fc-9ebe-f3d88abc444f
 
 provider:
   name: aws
@@ -133,7 +134,7 @@ resources:
               MinTTL: '0'
               DefaultTTL: '0'
           ViewerCertificate:
-            AcmCertificateArn: arn:aws:acm:us-east-1:680499645329:certificate/6fbcfddc-3351-47fc-9ebe-f3d88abc444f
+            AcmCertificateArn: ${self:custom.acmArn}
             SslSupportMethod: sni-only
             MinimumProtocolVersion: TLSv1.2_2018
           PriceClass: PriceClass_100
