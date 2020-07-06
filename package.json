@@ -1,13 +1,13 @@
 {
   "name": "shorty",
-  "description": "",
+  "description": "Serverless URL shortener written in Python3 using the serverless framework",
   "version": "0.1.0",
   "dependencies": {
-    "serverless-finch": "^2.6.0"
+    "serverless-finch": "^2.6.0",
+    "serverless-python-requirements": "^5.1.0",
+    "serverless-wsgi": "^1.7.5"
   },
   "devDependencies": {
     "serverless-dynamodb-local": "^0.2.39",
-    "serverless-python-requirements": "^5.1.0",
-    "serverless-wsgi": "^1.7.5"
   }
 }

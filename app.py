@@ -54,7 +54,7 @@ def shorty(slug):
         UpdateExpression='ADD visits :inc',
         ExpressionAttributeValues={':inc': 1}
     )
-    return redirect(long_url, code=301)
+    return redirect(long_url if '://' in long_url else 'http://' + long_url, code=301)
 
 
 @app.route('/api/urls/<string:slug>')
