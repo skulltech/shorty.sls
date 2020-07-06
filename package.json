@@ -8,6 +8,6 @@
     "serverless-wsgi": "^1.7.5"
   },
   "devDependencies": {
-    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-dynamodb-local": "^0.2.39"
   }
 }
