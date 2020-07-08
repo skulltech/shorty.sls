@@ -23,12 +23,13 @@ custom:
   client:
     bucketName: shorty-serverless
     distributionFolder: dist
+  certificate: shorty.skghosh.me
 
 provider:
   name: aws
   runtime: python3.8
-  stage: dev
-  region: ap-south-1
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-south-1'}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -70,7 +71,7 @@ resources:
       Properties:
         DistributionConfig:
           Aliases:
-            - shorty.skghosh.me
+            - ${self:custom.certificate}
           Origins:
             - DomainName: ${self:custom.client.bucketName}.s3-website.${self:provider.region}.amazonaws.com
               Id: StaticS3Origin
@@ -86,7 +87,11 @@ resources:
               Id: APIOrigin
               CustomOriginConfig:
                 OriginProtocolPolicy: https-only
-              OriginPath: /dev
+              OriginPath:
+                Fn::Join:
+                  - ""
+                  - - "/"
+                    - ${self:provider.stage}
           Enabled: true
           DefaultCacheBehavior:
             TargetOriginId: StaticS3Origin
