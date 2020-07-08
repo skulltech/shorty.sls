@@ -23,8 +23,8 @@ custom:
   client:
     bucketName: shorty-serverless
     distributionFolder: dist
+  alias: shorty.skghosh.me
   acmArn: arn:aws:acm:us-east-1:680499645329:certificate/6fbcfddc-3351-47fc-9ebe-f3d88abc444f
-  certificate: shorty.skghosh.me
 
 provider:
   name: aws
@@ -72,7 +72,7 @@ resources:
       Properties:
         DistributionConfig:
           Aliases:
-            - ${self:custom.certificate}
+            - ${self:custom.alias}
           Origins:
             - DomainName: ${self:custom.client.bucketName}.s3-website.${self:provider.region}.amazonaws.com
               Id: StaticS3Origin
@@ -90,8 +90,8 @@ resources:
                 OriginProtocolPolicy: https-only
               OriginPath:
                 Fn::Join:
-                  - ""
-                  - - "/"
+                  - ''
+                  - - '/'
                     - ${self:provider.stage}
           Enabled: true
           DefaultCacheBehavior:
