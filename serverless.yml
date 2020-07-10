@@ -1,6 +1,4 @@
 service: shorty
-app: shorty-app
-org: skghosh
 
 plugins:
   - serverless-python-requirements
@@ -21,7 +19,7 @@ custom:
     stages:
       - dev
   client:
-    bucketName: shorty-serverless
+    bucketName: shorty-frontend-${self:provider.stage}
     distributionFolder: dist
   alias: shorty.skghosh.me
   acmArn: arn:aws:acm:us-east-1:680499645329:certificate/6fbcfddc-3351-47fc-9ebe-f3d88abc444f
@@ -50,6 +48,7 @@ functions:
     events:
       - http: ANY /
       - http: ANY {proxy+}
+    memorySize: 256
 
 resources:
   Resources:
