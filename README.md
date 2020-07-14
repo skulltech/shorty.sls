@@ -1,4 +1,4 @@
-# shorty.serverless
+# shorty.sls
 Serverless URL shortener written in Python3 using the serverless framework
 
 - Visit the front-end @ https://shorty.skghosh.me
